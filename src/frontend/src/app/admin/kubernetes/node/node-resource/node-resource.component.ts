@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { GlobalState } from '../../../../shared/global.state';
 
 interface Summary {
@@ -26,42 +26,61 @@ export class NodeResourceComponent implements OnInit {
       this.setNode(value.nodeSummary);
     }
   }
+
   showView = GlobalState.node.showResource;
-  cpu = {
-    title: 'CPU 使用概况',
+  ready = {
+    title: `Node 就绪`,
     name: '使用量',
-    max: 0,
+    tooltip: '',
+    data: []
+  };
+  schedulable = {
+    title: 'Node 可调度',
+    name: '可调度',
+    tooltip: '',
+    data: []
+  };
+  cpu = {
+    title: 'CPU 使用',
+    name: '使用量',
+    tooltip: '',
     data: []
   };
   memory = {
-    title: 'Memory 使用概况',
+    title: 'Memory 使用',
     name: '使用量',
-    max: 0,
+    tooltip: '',
     data: []
   };
-  node = {
-    total: 0,
-    ready: 0,
-    schedulable: 0
-  };
+
   setCpu(cpuSummary: Summary) {
-    this.cpu.max = cpuSummary.Total;
-    this.cpu.data = [cpuSummary.Used];
+    this.cpu.title = `CPU 使用 (${cpuSummary.Used}/${cpuSummary.Total}核)`;
+    this.cpu.tooltip = `${cpuSummary.Used} / ${cpuSummary.Total} (核)`;
+    this.cpu.data = [parseInt((cpuSummary.Used / cpuSummary.Total) * 100 + '', 10)];
   }
+
   setMemory(memorySummary: Summary) {
-    this.memory.max = memorySummary.Total;
-    this.memory.data = [memorySummary.Used];
+    this.memory.title = `内存使用 (${memorySummary.Used}/${memorySummary.Total}G)`;
+    this.memory.tooltip = `${memorySummary.Used} / ${memorySummary.Total} (G)`;
+    this.memory.data = [parseInt((memorySummary.Used / memorySummary.Total) * 100 + '', 10)];
   }
+
   setNode(nodeSummary: NodeSummary) {
-    this.node.total = nodeSummary.Total;
-    this.node.ready = nodeSummary.Ready;
-    this.node.schedulable = nodeSummary.Schedulable;
+    this.ready.title = `Node 就绪 (${nodeSummary.Ready}/${nodeSummary.Total})`;
+    this.schedulable.title = `Node 可调度 (${nodeSummary.Schedulable}/${nodeSummary.Total})`;
+    this.ready.tooltip = `${nodeSummary.Ready} / ${nodeSummary.Total}`;
+    this.ready.data = [parseInt((nodeSummary.Ready / nodeSummary.Total) * 100 + '', 10)];
+    this.schedulable.tooltip = `${nodeSummary.Schedulable} / ${nodeSummary.Total}`;
+    this.schedulable.data = [parseInt((nodeSummary.Schedulable / nodeSummary.Total) * 100 + '', 10)];
   }
+
   changeShow() {
     this.showView = !this.showView;
     GlobalState.node.showResource = this.showView;
   }
-  constructor() { }
+
+  constructor() {
+  }
 
   ngOnInit() {
   }

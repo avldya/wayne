@@ -10,7 +10,7 @@ import EChartOption = echarts.EChartOption;
   styleUrls: ['./gauge.component.scss']
 })
 
-export class EcharsGaugeComponent implements AfterViewInit {
+export class EchartsGaugeComponent implements AfterViewInit {
   /**
    * 可传参数：
    *  save: saveAsImage, 默认不打开
@@ -23,12 +23,16 @@ export class EcharsGaugeComponent implements AfterViewInit {
    *  data: number[] 数值
    *  min: number 起点，默认为0
    *  max: number 当 type 不是 percent 时候，传入max
+   *  tooltip 定制化的tip显示
+   *  reverse 颜色是否呈反向显示
    */
   _title: string;
   _save: boolean;
   _name: string;
   _type: string;
   _data: number[];
+  _tooltip: string;
+  _reverse = false;
   _min = 0;
   _max = 100;
   @ViewChild('view') view;
@@ -54,6 +58,12 @@ export class EcharsGaugeComponent implements AfterViewInit {
     this._type = value;
     this.initOption();
   }
+  @Input('reverse')
+  set reverse(value: any) {
+    if (value !== undefined) {
+      this._reverse = true;
+    }
+  }
   @Input('data')
   set data(value: number[]) {
     this._data = value || [];
@@ -67,6 +77,11 @@ export class EcharsGaugeComponent implements AfterViewInit {
   @Input('max')
   set max(value: number) {
     this._max = value || 100;
+    this.initOption();
+  }
+  @Input('tooltip')
+  set tooltip(value: string) {
+    this._tooltip = value;
     this.initOption();
   }
 
@@ -93,7 +108,7 @@ export class EcharsGaugeComponent implements AfterViewInit {
         }
       },
       tooltip: {
-        formatter: this.type === 'percent' ? '{b} : {c}%' : '{b} : {c}'
+        formatter: this._tooltip ? this._tooltip : this._type === 'percent' ? '{b} : {c}%' : '{b} : {c}'
       },
       toolbox: {
         feature: {
@@ -114,9 +129,9 @@ export class EcharsGaugeComponent implements AfterViewInit {
             }
           },
           detail: {
-            formatter: this.type === 'percent' ? '{value}%' : '{value}',
+            formatter: this._type === 'percent' ? '{value}%' : '{value}',
             textStyle: {
-              fontSize: 20,
+              fontSize: 18,
               color: 'auto'
             }
           },
@@ -132,6 +147,8 @@ export class EcharsGaugeComponent implements AfterViewInit {
           data: this.chartData,
           axisLine: {
             lineStyle: {
+              color: this._reverse ? [[0.2, '#c23531'], [0.8, '#63869e'], [1, '#91c7ae']]
+                : [[0.2, '#91c7ae'], [0.8, '#63869e'], [1, '#c23531']],
               width: 8
             }
           },
